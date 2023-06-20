@@ -24,7 +24,7 @@ resource "aws_vpc" "parkland-transit" {
   assign_generated_ipv6_cidr_block = true
 
   tags = {
-    Name        = "busplanner-${var.environment}-vpc"
+    Name        = "companya-${var.environment}-vpc"
     Environment = var.environment
     Provisioner = "terraform"
   }
@@ -32,58 +32,58 @@ resource "aws_vpc" "parkland-transit" {
 
 #To create the Internet gateway which depends on the VPC that MUST be created first
 resource "aws_internet_gateway" "parkland-transit-vpc-gateway" {
-  vpc_id = aws_vpc.parkland-transit.id
+  vpc_id = aws_vpc.terraformhardway-platform.id
 
   tags = {
-    Name        = "busplanner-${var.environment}-gw"
+    Name        = "companya-${var.environment}-gw"
     Environment = var.environment
     Provisioner = "terraform"
   }
 
   depends_on = [
-    aws_vpc.parkland-transit
+    aws_vpc.terraformhardway-platform
   ]
 }
 
 #To create the route table which determine where network traffic from a subnet or gateway is directed.
 resource "aws_route" "r" {
-  route_table_id         = aws_vpc.parkland-transit.default_route_table_id
-  gateway_id             = aws_internet_gateway.parkland-transit-vpc-gateway.id
+  route_table_id         = aws_vpc.terraformhardway-platform.default_route_table_id
+  gateway_id             = aws_internet_gateway.terraformhardway-platform-vpc-gateway.id
   destination_cidr_block = "0.0.0.0/0"
 }
 
 #To create subnet 1 private subnet and 1public subnet
 resource "aws_subnet" "privatesubnet" {
-  vpc_id                  = aws_vpc.parkland-transit.id
+  vpc_id                  = aws_vpc.terraformhardway-platform.id
   cidr_block              = "192.168.1.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "us-east-1b"
 
   tags = {
-    Name        = "busplanner-${var.environment}-private_subnet"
+    Name        = "companya-${var.environment}-private_subnet_d_one"
     Environment = var.environment
     Provisioner = "terraform"
   }
 
   depends_on = [
-    aws_vpc.parkland-transit
+    aws_vpc.terraformhardway-platform
   ]
 }
 
 resource "aws_subnet" "publicsubnet" {
-  vpc_id                  = aws_vpc.parkland-transit.id
+  vpc_id                  = aws_vpc.terraformhardway-platform.id
   cidr_block              = "192.168.4.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "us-east-1b"
 
   tags = {
-    Name        = "busplanner-${var.environment}-public_subnet"
+    Name        = "companya-${var.environment}-public_subnet_d_one"
     Environment = var.environment
     Provisioner = "terraform"
   }
 
   depends_on = [
-    aws_vpc.parkland-transit
+    aws_vpc.terraformhardway-platform
   ]
 }
 
@@ -98,14 +98,14 @@ resource "aws_nat_gateway" "nat_a" {
   subnet_id     = aws_subnet.publicsubnet.id
 
   tags = {
-    Name        = "busplanner-${var.environment}-nat_gateway_a"
+    Name        = "companya-${var.environment}-nat_gateway_a"
     Environment = var.environment
     Provisioner = "terraform"
   }
 }
 
 resource "aws_route_table" "privateroute" {
-  vpc_id = aws_vpc.parkland-transit.id
+  vpc_id = aws_vpc.terraformhardway-platform.id
 
   route {
     cidr_block     = "0.0.0.0/0"
@@ -113,7 +113,7 @@ resource "aws_route_table" "privateroute" {
   }
 
   tags = {
-    Name        = "busplanner-${var.environment}-private_route_table"
+    Name        = "companya-${var.environment}-private_route_table"
     Environment = var.environment
     Provisioner = "terraform"
   }
@@ -126,11 +126,11 @@ resource "aws_route_table_association" "privateroute_one" {
 
 #To display the output ID
 output "vpc_security_group_id" {
-  value = aws_vpc.parkland-transit.default_security_group_id
+  value = aws_vpc.terraformhardway-platform.default_security_group_id
 }
 
 output "vpcid" {
-  value = aws_vpc.parkland-transit.id
+  value = aws_vpc.terraformhardway-platform.id
 }
 # output "security-group-id" {
 #   value = aws_security_group.allow_incoming.id
